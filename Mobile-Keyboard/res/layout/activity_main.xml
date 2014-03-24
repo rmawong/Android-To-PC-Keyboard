@@ -1,0 +1,32 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.rmawong.mobile_keyboard.MainActivity"
+    tools:ignore="MergeRootFrame" >
+    
+    <TextView
+        android:text="Paired Devices"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop ="true"
+        android:id="@+id/tvPD"/>
+
+    <ListView
+        android:id="@+id/listView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvPD"
+        android:layout_above="@+id/bConnectNew">
+
+    </ListView>
+
+    <Button
+        android:id="@+id/bConnectNew"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom ="true"
+        android:text="New" />
+
+</RelativeLayout>
