@@ -3,6 +3,7 @@ package com.rmawong.mobile_keyboard;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
@@ -227,9 +228,12 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 			connect.start();
 		} else {
 			Toast.makeText(getApplicationContext(), "device is not paired", Toast.LENGTH_SHORT).show();
+			Intent intentOpenBluetoothSettings = new Intent();
+			intentOpenBluetoothSettings.setAction(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS); 
+			startActivity(intentOpenBluetoothSettings); 
 		}
 	}
-
+	
 	private class ConnectThread extends Thread {
 
 		private final BluetoothSocket mmSocket;
