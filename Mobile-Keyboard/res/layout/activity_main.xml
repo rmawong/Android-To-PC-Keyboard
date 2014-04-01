@@ -20,19 +20,12 @@
         android:layout_above="@+id/textField"
         android:layout_below="@+id/tvPD" >
     </ListView>
-
-    <Button
-        android:id="@+id/bSendMessage"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:text="Send Message" />
-
+    
     <EditText
         android:id="@+id/textField"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/bSendMessage"
+        android:layout_alignParentBottom="true"
         android:ems="10"
         android:imeOptions="actionNone"
         android:inputType="text"
