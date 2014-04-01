@@ -7,7 +7,7 @@
     tools:ignore="MergeRootFrame" >
     
     <TextView
-        android:text="Paired Devices"
+        android:text="All Devices"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop ="true"
@@ -17,16 +17,25 @@
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tvPD"
-        android:layout_above="@+id/bConnectNew">
-
+        android:layout_above="@+id/textField"
+        android:layout_below="@+id/tvPD" >
     </ListView>
 
     <Button
-        android:id="@+id/bConnectNew"
+        android:id="@+id/bSendMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom ="true"
-        android:text="New" />
+        android:layout_alignParentBottom="true"
+        android:text="Send Message" />
+
+    <EditText
+        android:id="@+id/textField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/bSendMessage"
+        android:ems="10"
+        android:imeOptions="actionNone"
+        android:inputType="text"
+        android:text="0" />
 
 </RelativeLayout>

@@ -3,7 +3,6 @@ package com.rmawong.mobile_keyboard;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
@@ -18,23 +17,29 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
 public class MainActivity extends ActionBarActivity implements OnItemClickListener{
 
 	ArrayAdapter<String> listAdapter;
-	Button connectNew;
+	Button sendMessage;
+	EditText textField;
 	ListView listView;
 	BluetoothAdapter btAdapter;
 	Set<BluetoothDevice> devicesArray;
@@ -46,12 +51,14 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	protected static final int SUCCESS_CONNECT = 0;
 	protected static final int MESSAGE_READ = 1;
 	String tag = "debugging";
+	ConnectedThread connectedThread = null;
+	boolean isSend = false;
 	Handler mHandler = new Handler(){
 		public void handleMessage(android.os.Message msg) {
 			super.handleMessage(msg);
 			switch(msg.what){
 			case SUCCESS_CONNECT:
-				ConnectedThread connectedThread = new ConnectedThread((BluetoothSocket) msg.obj);
+				connectedThread = new ConnectedThread((BluetoothSocket) msg.obj);
 				Toast.makeText(getApplicationContext(), "CONNECT", Toast.LENGTH_SHORT).show();
 				String s = "Byron is the best!";
 				connectedThread.write(s.getBytes());
@@ -113,7 +120,66 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 	}
 
 	private void init() {
-		connectNew=(Button)findViewById(R.id.bConnectNew);
+		sendMessage=(Button)findViewById(R.id.bSendMessage);
+		textField=(EditText)findViewById(R.id.textField);
+
+
+		// create click listener
+		OnClickListener oclBtnOk = new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				// change text of the TextView (tvOut)
+				String s = textField.getText().toString();
+				connectedThread.write(s.getBytes());
+				Log.i(tag, s);
+			}
+		};
+
+		textField.setSelection(textField.getText().length());
+		textField.addTextChangedListener(new TextWatcher(){
+			public void afterTextChanged(Editable s) {
+				if (isSend == false) {
+					String string = textField.getText().toString();
+					if (string.length() > 1 && Character.isSpaceChar(string.charAt(1)))
+						string = string.substring(0,0)+' '+string.substring(1, string.length());
+					if (string.length() <= 1) {
+						String out = "{BACKSPACE}";
+						connectedThread.write(out.getBytes());
+					} else if (string.length() > 1) {
+							connectedThread.write(string.substring(1).getBytes());
+					}
+					Log.i(tag, string);
+					isSend = true;
+					textField.setText("0");
+					textField.setSelection(textField.getText().length());
+					isSend = false;
+				}
+			}
+			public void beforeTextChanged(CharSequence s, int start, int count, int after){}
+			public void onTextChanged(CharSequence s, int start, int before, int count){}
+		});
+
+		textField.setOnKeyListener(new View.OnKeyListener() {
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				// If the event is a key-down event on the "enter" button
+				if (event.getAction() == KeyEvent.ACTION_DOWN) {
+					if (keyCode == KeyEvent.KEYCODE_ENTER) {
+						String out = "{ENTER}";
+						connectedThread.write(out.getBytes());
+						return true;
+					} else if (keyCode == KeyEvent.KEYCODE_DEL) {
+						String out = "{BACKSPACE}";
+						connectedThread.write(out.getBytes());
+					}
+				}
+				return false;
+			}
+		});
+
+		// assign click listener to the OK button (btnOK)
+		sendMessage.setOnClickListener(oclBtnOk);
+
+
 		listView=(ListView)findViewById(R.id.listView);
 		listView.setOnItemClickListener(this);
 		listAdapter=new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1,0);
@@ -233,7 +299,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 			startActivity(intentOpenBluetoothSettings); 
 		}
 	}
-	
+
 	private class ConnectThread extends Thread {
 
 		private final BluetoothSocket mmSocket;
@@ -272,7 +338,6 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 			// Do work to manage the connection (in a separate thread)
 			mHandler.obtainMessage(SUCCESS_CONNECT, mmSocket).sendToTarget();
 			ConnectedThread connectedThread = new ConnectedThread((BluetoothSocket) mmSocket);
-			connectedThread.run();
 
 		}
 
@@ -328,6 +393,7 @@ public class MainActivity extends ActionBarActivity implements OnItemClickListen
 		public void write(byte[] bytes) {
 			try {
 				mmOutStream.write(bytes);
+				mmOutStream.flush();
 			} catch (IOException e) { }
 		}
 
